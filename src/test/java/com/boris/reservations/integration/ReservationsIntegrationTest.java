@@ -70,14 +70,6 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 				.andDo(print()).andExpect(status().isOk()).andExpect(content().string("[]"));
 	}
 
-	// @Ignore
-	// public void getFreeTablesForVenue() throws Exception {
-	// this.mockMvc
-	// .perform(get("/reservations/123/2015-12-11/12")
-	// .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-	// .andDo(print()).andExpect(status().isOk());
-	// }
-	//
 	@Test
 	public void getAllReservationsForVenue() throws Exception {
 		Reservation userTestReservation = new ReservationBuilder().withId(DUMMY_RESERVATION_ID)
@@ -143,7 +135,7 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 		
 	}
 
-	public static String asJsonString(final Object obj) {
+	private static String asJsonString(final Object obj) {
 		try {
 			final ObjectMapper mapper = new ObjectMapper();
 			final String jsonContent = mapper.writeValueAsString(obj);

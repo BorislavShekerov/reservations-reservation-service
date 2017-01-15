@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.boris.reservations.model.Reservation;
 
 @Repository
-public interface ReservationDao extends CrudRepository<Reservation, Long> {
+public interface ReservationDao extends CrudRepository<Reservation, String> {
 
 	List<Reservation> findReservationsByUserReservedEmail(String userEmail);
 
