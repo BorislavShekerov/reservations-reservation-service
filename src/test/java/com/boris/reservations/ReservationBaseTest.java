@@ -14,7 +14,7 @@ public class ReservationBaseTest {
 
 	protected static final int DUMMY_RESERVATION_PEOPLE_ATTENDING = 10;
 
-	protected static final int DUMMY_RESERVATION_ID = 1;
+	protected static final String DUMMY_RESERVATION_ID = "1";
 
 	protected static final String DUMMY_USER_EMAIL = "dummyEmail";
 

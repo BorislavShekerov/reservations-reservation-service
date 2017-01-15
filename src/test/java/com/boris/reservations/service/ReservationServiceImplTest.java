@@ -41,7 +41,7 @@ public class ReservationServiceImplTest extends ReservationBaseTest {
 
 	@Test
 	public void getReservationsForUser_reservationsExist() {
-		when(reservationDaoMock.findReservationsByUserReservedEmail()).thenReturn(Arrays.asList(DUMMY_RESERVATION));
+		when(reservationDaoMock.findReservationsByUserReservedEmail(DUMMY_USER_EMAIL)).thenReturn(Arrays.asList(DUMMY_RESERVATION));
 
 		Optional<List<Reservation>> reservations = testObj.getReservationsForUser(DUMMY_USER_EMAIL);
 
@@ -51,7 +51,7 @@ public class ReservationServiceImplTest extends ReservationBaseTest {
 
 	@Test
 	public void getReservationsForUser_noReservations() {
-		when(reservationDaoMock.findReservationsByUserReservedEmail()).thenReturn(null);
+		when(reservationDaoMock.findReservationsByUserReservedEmail(DUMMY_USER_EMAIL)).thenReturn(null);
 
 		Optional<List<Reservation>> reservations = testObj.getReservationsForUser(DUMMY_USER_EMAIL);
 

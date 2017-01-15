@@ -7,9 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 public class Reservation {
-	
+
 	@Id
-	private long id;
+	private String id;
 	private LocalDate reservationDate;
 	private long venueId;
 	private int peopleAttending;
@@ -24,11 +24,11 @@ public class Reservation {
 		this.userReservedEmail = userReservedEmail;
 	}
 
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
-	private void setId(long id) {
+	private void setId(String id) {
 		this.id = id;
 	}
 
@@ -68,9 +68,10 @@ public class Reservation {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + peopleAttending;
 		result = prime * result + ((reservationDate == null) ? 0 : reservationDate.hashCode());
+		result = prime * result + ((tableReserved == null) ? 0 : tableReserved.hashCode());
 		result = prime * result + ((userReservedEmail == null) ? 0 : userReservedEmail.hashCode());
 		result = prime * result + (int) (venueId ^ (venueId >>> 32));
 		return result;
@@ -85,7 +86,10 @@ public class Reservation {
 		if (getClass() != obj.getClass())
 			return false;
 		Reservation other = (Reservation) obj;
-		if (id != other.id)
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
 			return false;
 		if (peopleAttending != other.peopleAttending)
 			return false;
@@ -93,6 +97,11 @@ public class Reservation {
 			if (other.reservationDate != null)
 				return false;
 		} else if (!reservationDate.equals(other.reservationDate))
+			return false;
+		if (tableReserved == null) {
+			if (other.tableReserved != null)
+				return false;
+		} else if (!tableReserved.equals(other.tableReserved))
 			return false;
 		if (userReservedEmail == null) {
 			if (other.userReservedEmail != null)
@@ -126,7 +135,7 @@ public class Reservation {
 			return this;
 		}
 
-		public ReservationBuilder withId(long id) {
+		public ReservationBuilder withId(String id) {
 			this.reservation.setId(id);
 			return this;
 		}
@@ -135,8 +144,8 @@ public class Reservation {
 			this.reservation.setUserReservedEmail(userReservedEmail);
 			return this;
 		}
-		
-		public ReservationBuilder withTableReserved(Table tableReserved){
+
+		public ReservationBuilder withTableReserved(Table tableReserved) {
 			this.reservation.setTableReserved(tableReserved);
 			return this;
 		}
