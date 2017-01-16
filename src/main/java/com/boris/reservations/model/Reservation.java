@@ -11,7 +11,7 @@ public class Reservation {
 	@Id
 	private String id;
 	private LocalDate reservationDate;
-	private long venueId;
+	private String venueId;
 	private int peopleAttending;
 	private Table tableReserved;
 	private String userReservedEmail;
@@ -40,11 +40,11 @@ public class Reservation {
 		this.reservationDate = reservationDate;
 	}
 
-	public long getVenueId() {
+	public String getVenueId() {
 		return venueId;
 	}
 
-	private void setVenueId(long venueId) {
+	private void setVenueId(String venueId) {
 		this.venueId = venueId;
 	}
 
@@ -73,7 +73,7 @@ public class Reservation {
 		result = prime * result + ((reservationDate == null) ? 0 : reservationDate.hashCode());
 		result = prime * result + ((tableReserved == null) ? 0 : tableReserved.hashCode());
 		result = prime * result + ((userReservedEmail == null) ? 0 : userReservedEmail.hashCode());
-		result = prime * result + (int) (venueId ^ (venueId >>> 32));
+		result = prime * result + ((venueId == null) ? 0 : venueId.hashCode());
 		return result;
 	}
 
@@ -108,10 +108,15 @@ public class Reservation {
 				return false;
 		} else if (!userReservedEmail.equals(other.userReservedEmail))
 			return false;
-		if (venueId != other.venueId)
+		if (venueId == null) {
+			if (other.venueId != null)
+				return false;
+		} else if (!venueId.equals(other.venueId))
 			return false;
 		return true;
 	}
+
+
 
 	public static class ReservationBuilder {
 		private Reservation reservation;
@@ -125,7 +130,7 @@ public class Reservation {
 			return this;
 		}
 
-		public ReservationBuilder withVenueId(long venueId) {
+		public ReservationBuilder withVenueId(String venueId) {
 			this.reservation.setVenueId(venueId);
 			return this;
 		}

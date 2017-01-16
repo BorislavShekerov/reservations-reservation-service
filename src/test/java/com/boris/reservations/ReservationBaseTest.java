@@ -10,7 +10,7 @@ public class ReservationBaseTest {
 	
 	protected static final LocalDate DUMMY_RESERVATION_DATE = LocalDate.now();
 
-	protected static final int DUMMY_VENUE_ID = 12;
+	protected static final String DUMMY_VENUE_ID = "12";
 
 	protected static final int DUMMY_RESERVATION_PEOPLE_ATTENDING = 10;
 

@@ -54,35 +54,30 @@ public class ReservationServiceImpl implements ReservationService {
 	 * long, java.time.LocalDate, int)
 	 */
 	@Override
-	public Optional<List<Table>> getFreeTablesForVenue(long venueId, LocalDate reservationDate,
+	public Optional<List<Table>> getFreeTablesForVenue(String venueId, LocalDate reservationDate,
 			final int peopleAttending) {
-		Callable<List<Reservation>> reservationsForVenueTask = () -> reservationsDao.getReservationsByVenueIdAndReservationDate(venueId,
-				reservationDate);
 		Callable<List<Table>> tablesForVenueTask = () -> venueService.getTablesForVenue(venueId);
 		
-		Future<List<Reservation>> reservationsForVenueFuture = executorService.submit(reservationsForVenueTask);
 		Future<List<Table>> tablesForVenueFuture = executorService.submit(tablesForVenueTask);
 		List<Table> freeTablesForVenue = null;
-		try {
-			List<Integer> reservedTableNumbers = reservationsForVenueFuture.get(2, TimeUnit.SECONDS).stream()
+		
+			List<Integer> reservedTableNumbers = reservationsDao.getReservationsByVenueIdAndReservationDate(venueId,reservationDate).stream()
 					.map(reservation -> reservation.getTableReserved().getNumber()).collect(toList());
 			
-			freeTablesForVenue = tablesForVenueFuture.get(2, TimeUnit.SECONDS).stream().filter(table -> !reservedTableNumbers.contains(table.getNumber()))
+			freeTablesForVenue = venueService.getTablesForVenue(venueId).stream().filter(table -> !reservedTableNumbers.contains(table.getNumber()))
 					.filter(table -> table.getCapacity() >= peopleAttending).collect(toList());
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
-			LOGGER.error(e);
-		}
+		
 		
 		return Optional.ofNullable(freeTablesForVenue);
 	}
 	
 	@Async
-	private Future<List<Table>> getTablesForVenue(long venueId) {
+	private Future<List<Table>> getTablesForVenue(String venueId) {
 		return new AsyncResult<>(venueService.getTablesForVenue(venueId));
 	}
 	
 	@Async
-	private Future<List<Reservation>> getReservationsForVenue(long venueId, LocalDate reservationDate) {
+	private Future<List<Reservation>> getReservationsForVenue(String venueId, LocalDate reservationDate) {
 		List<Reservation> reservationsForVenue = reservationsDao.getReservationsByVenueIdAndReservationDate(venueId,
 				reservationDate);
 		return new AsyncResult<>(reservationsForVenue);
@@ -95,7 +90,7 @@ public class ReservationServiceImpl implements ReservationService {
 	 * getAllReservationsForVenue(long, java.time.LocalDate)
 	 */
 	@Override
-	public Optional<List<Reservation>> getAllReservationsForVenue(long venueId, LocalDate reservationDate) {
+	public Optional<List<Reservation>> getAllReservationsForVenue(String venueId, LocalDate reservationDate) {
 		return Optional
 				.ofNullable(reservationsDao.getReservationsByVenueIdAndReservationDate(venueId, reservationDate));
 	}

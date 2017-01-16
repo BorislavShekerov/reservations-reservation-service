@@ -11,9 +11,9 @@ public interface ReservationService {
 
 	Optional<List<Reservation>> getReservationsForUser(String userEmail);
 
-	Optional<List<Table>> getFreeTablesForVenue(long venueId, LocalDate reservationDate, int peopleAttending);
+	Optional<List<Table>> getFreeTablesForVenue(String venueId, LocalDate reservationDate, int peopleAttending);
 
-	Optional<List<Reservation>> getAllReservationsForVenue(long venueId, LocalDate reservationDate);
+	Optional<List<Reservation>> getAllReservationsForVenue(String venueId, LocalDate reservationDate);
 
 	Optional<Reservation> saveReservation(Reservation reservationToAdd);
 

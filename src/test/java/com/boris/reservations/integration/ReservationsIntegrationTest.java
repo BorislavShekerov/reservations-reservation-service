@@ -149,12 +149,12 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 		@Id
 		private String id;
 		private String reservationDate;
-		private long venueId;
+		private String venueId;
 		private int peopleAttending;
 		private Table tableReserved;
 		private String userReservedEmail;
 
-		public ReservationRequest(String id, String reservationDate, long venueId, int peopleAttending,
+		public ReservationRequest(String id, String reservationDate, String venueId, int peopleAttending,
 				Table tableReserved, String userReservedEmail) {
 			this.id = id;
 			this.reservationDate = reservationDate;
@@ -172,7 +172,7 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 			return reservationDate;
 		}
 
-		public Long getVenueId() {
+		public String getVenueId() {
 			return venueId;
 		}
 

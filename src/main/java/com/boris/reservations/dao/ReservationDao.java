@@ -13,6 +13,6 @@ public interface ReservationDao extends CrudRepository<Reservation, String> {
 
 	List<Reservation> findReservationsByUserReservedEmail(String userEmail);
 
-	List<Reservation> getReservationsByVenueIdAndReservationDate(long venueId, LocalDate dummyReservationDate);
+	List<Reservation> getReservationsByVenueIdAndReservationDate(String venueId, LocalDate dummyReservationDate);
 
 }

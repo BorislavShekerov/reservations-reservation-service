@@ -6,5 +6,5 @@ import com.boris.reservations.model.Table;
 
 public interface VenueService {
 	
-	public List<Table> getTablesForVenue(long venueId);
+	public List<Table> getTablesForVenue(String venueId);
 }

@@ -13,7 +13,7 @@ public class VenueServiceStub implements VenueService {
 	public static final Table AVAILABLE_TABLE = new Table(1, 4);
 
 	@Override
-	public List<Table> getTablesForVenue(long venueId) {
+	public List<Table> getTablesForVenue(String venueId) {
 		return Arrays.asList(AVAILABLE_TABLE);
 	}
 

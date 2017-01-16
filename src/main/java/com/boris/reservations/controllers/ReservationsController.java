@@ -29,12 +29,12 @@ public class ReservationsController {
 	}
 	
 	@GetMapping("/reservations/{venueId}/{reservationDate}/{peopleAttending}")
-	public List<Table> getFreeTablesForVenue(@PathVariable long venueId, @PathVariable String reservationDate,@PathVariable int peopleAttending){
+	public List<Table> getFreeTablesForVenue(@PathVariable String venueId, @PathVariable String reservationDate,@PathVariable int peopleAttending){
 		return reservationService.getFreeTablesForVenue(venueId, LocalDate.parse(reservationDate), peopleAttending).orElse(new ArrayList<>());
 	}
 	
 	@GetMapping("/reservations/{venueId}/{reservationDate}")
-	public List<Reservation> getAllReservationsForVenue(@PathVariable long venueId, @PathVariable String reservationDate){
+	public List<Reservation> getAllReservationsForVenue(@PathVariable String venueId, @PathVariable String reservationDate){
 		return reservationService.getAllReservationsForVenue(venueId, LocalDate.parse(reservationDate)).get();
 	}
 	
