@@ -10,8 +10,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,11 +59,16 @@ public class ReservationServiceImpl implements ReservationService {
 		Future<List<Table>> tablesForVenueFuture = executorService.submit(tablesForVenueTask);
 		List<Table> freeTablesForVenue = null;
 		
-			List<Integer> reservedTableNumbers = reservationsDao.getReservationsByVenueIdAndReservationDate(venueId,reservationDate).stream()
-					.map(reservation -> reservation.getTableReserved().getNumber()).collect(toList());
+		List<Integer> reservedTableNumbers = reservationsDao.getReservationsByVenueIdAndReservationDate(venueId,reservationDate).stream()
+				.map(reservation -> reservation.getTableReserved().getNumber()).collect(toList());
 			
-			freeTablesForVenue = venueService.getTablesForVenue(venueId).stream().filter(table -> !reservedTableNumbers.contains(table.getNumber()))
+		try {
+			freeTablesForVenue = tablesForVenueFuture.get().stream().filter(table -> !reservedTableNumbers.contains(table.getNumber()))
 					.filter(table -> table.getCapacity() >= peopleAttending).collect(toList());
+		} catch (InterruptedException | ExecutionException e) {
+			LOGGER.debug("Error while making async get tables request", e);
+			e.printStackTrace();
+		}
 		
 		
 		return Optional.ofNullable(freeTablesForVenue);
