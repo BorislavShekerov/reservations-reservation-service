@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +20,7 @@ import com.boris.reservations.service.ReservationService;
 @RestController
 public class ReservationsController {
 	
-	private static final String DUMMY_USER_EMAIL = "dummyEmail";
+	private static final String DUMMY_USER_EMAIL = "boris@abv.bg";
 	
 	@Autowired
 	ReservationService reservationService;

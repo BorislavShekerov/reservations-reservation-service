@@ -5,15 +5,18 @@ import java.time.LocalDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Document
 public class Reservation {
 
 	@Id
 	private String id;
 	private LocalDate reservationDate;
-	private String venueId;
+	private Venue venue;
 	private int peopleAttending;
 	private Table tableReserved;
+	@JsonIgnore
 	private String userReservedEmail;
 
 	public String getUserReservedEmail() {
@@ -40,12 +43,12 @@ public class Reservation {
 		this.reservationDate = reservationDate;
 	}
 
-	public String getVenueId() {
-		return venueId;
+	public Venue getVenue() {
+		return venue;
 	}
 
-	private void setVenueId(String venueId) {
-		this.venueId = venueId;
+	private void setVenue(Venue venue) {
+		this.venue = venue;
 	}
 
 	public int getPeopleAttending() {
@@ -73,7 +76,7 @@ public class Reservation {
 		result = prime * result + ((reservationDate == null) ? 0 : reservationDate.hashCode());
 		result = prime * result + ((tableReserved == null) ? 0 : tableReserved.hashCode());
 		result = prime * result + ((userReservedEmail == null) ? 0 : userReservedEmail.hashCode());
-		result = prime * result + ((venueId == null) ? 0 : venueId.hashCode());
+		result = prime * result + ((venue == null) ? 0 : venue.hashCode());
 		return result;
 	}
 
@@ -108,14 +111,13 @@ public class Reservation {
 				return false;
 		} else if (!userReservedEmail.equals(other.userReservedEmail))
 			return false;
-		if (venueId == null) {
-			if (other.venueId != null)
+		if (venue == null) {
+			if (other.venue != null)
 				return false;
-		} else if (!venueId.equals(other.venueId))
+		} else if (!venue.equals(other.venue))
 			return false;
 		return true;
 	}
-
 
 
 	public static class ReservationBuilder {
@@ -130,8 +132,8 @@ public class Reservation {
 			return this;
 		}
 
-		public ReservationBuilder withVenueId(String venueId) {
-			this.reservation.setVenueId(venueId);
+		public ReservationBuilder withVenue(Venue venue) {
+			this.reservation.setVenue(venue);
 			return this;
 		}
 

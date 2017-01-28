@@ -47,7 +47,7 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 
 		Reservation userTestReservation = new ReservationBuilder().withId(DUMMY_RESERVATION_ID)
 				.withPeopleAttending(DUMMY_RESERVATION_PEOPLE_ATTENDING).withReservationDate(LocalDate.now())
-				.withVenueId(DUMMY_VENUE_ID).withUserReservedEmail(DUMMY_USER_EMAIL).withTableReserved(venueTable)
+				.withVenue(DUMMY_RESERVED_VENUE).withUserReservedEmail(DUMMY_USER_EMAIL).withTableReserved(venueTable)
 				.build();
 
 		reservationsDao.save(userTestReservation);
@@ -57,7 +57,7 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 				.andExpect(jsonPath("$.[0].id").value(userTestReservation.getId()))
 				.andExpect(jsonPath("$.[0].peopleAttending").value(userTestReservation.getPeopleAttending()))
 				.andExpect(jsonPath("$.[0].userReservedEmail").value(userTestReservation.getUserReservedEmail()))
-				.andExpect(jsonPath("$.[0].venueId").value(userTestReservation.getVenueId()))
+				.andExpect(jsonPath("$.[0].venue.id").value(userTestReservation.getId()))
 				.andExpect(
 						jsonPath("$.[0].reservationDate[0]").value(userTestReservation.getReservationDate().getYear()))
 				.andExpect(jsonPath("$.[0].tableReserved.number")
@@ -74,7 +74,7 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 	public void getAllReservationsForVenue() throws Exception {
 		Reservation userTestReservation = new ReservationBuilder().withId(DUMMY_RESERVATION_ID)
 				.withPeopleAttending(DUMMY_RESERVATION_PEOPLE_ATTENDING).withReservationDate(LocalDate.now())
-				.withVenueId(DUMMY_VENUE_ID).withUserReservedEmail(DUMMY_USER_EMAIL).withTableReserved(venueTable)
+				.withVenue(DUMMY_RESERVED_VENUE).withUserReservedEmail(DUMMY_USER_EMAIL).withTableReserved(venueTable)
 				.build();
 
 		reservationsDao.save(userTestReservation);
@@ -84,7 +84,7 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
 				.andDo(print()).andExpect(status().isOk())
 				.andExpect(jsonPath("$.[0].id").value(userTestReservation.getId()))
-				.andExpect(jsonPath("$.[0].venueId").value(userTestReservation.getVenueId()));
+				.andExpect(jsonPath("$.[0].venue.id").value(userTestReservation.getVenue().getId()));
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 	public void getFreeTablesForVenue_noFreeTables() throws Exception {
 		Reservation userTestReservation = new ReservationBuilder().withId(DUMMY_RESERVATION_ID)
 				.withPeopleAttending(DUMMY_RESERVATION_PEOPLE_ATTENDING).withReservationDate(LocalDate.now())
-				.withVenueId(DUMMY_VENUE_ID).withUserReservedEmail(DUMMY_USER_EMAIL).withTableReserved(venueTable)
+				.withVenue(DUMMY_RESERVED_VENUE).withUserReservedEmail(DUMMY_USER_EMAIL).withTableReserved(venueTable)
 				.build();
 
 		reservationsDao.save(userTestReservation);
