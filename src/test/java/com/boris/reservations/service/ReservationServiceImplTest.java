@@ -28,10 +28,10 @@ public class ReservationServiceImplTest extends ReservationBaseTest {
 
 	@Mock
 	ReservationDao reservationDaoMock;
-	
+
 	@Mock
 	VenueService venueService;
-	
+
 	@Before
 	public void setUp() {
 		testObj = new ReservationServiceImpl();
@@ -41,9 +41,10 @@ public class ReservationServiceImplTest extends ReservationBaseTest {
 
 	@Test
 	public void getReservationsForUser_reservationsExist() {
-		when(reservationDaoMock.findReservationsByUserReservedEmail(DUMMY_USER_EMAIL)).thenReturn(Arrays.asList(DUMMY_RESERVATION));
+		when(reservationDaoMock.findReservationsByUserReserved_Email(DUMMY_USER.getEmail()))
+				.thenReturn(Arrays.asList(DUMMY_RESERVATION));
 
-		Optional<List<Reservation>> reservations = testObj.getReservationsForUser(DUMMY_USER_EMAIL);
+		Optional<List<Reservation>> reservations = testObj.getReservationsForUser(DUMMY_USER.getEmail());
 
 		assertTrue("There should be a reservation returned", reservations.isPresent());
 		assertEquals("Reservation should be the one mocked", DUMMY_RESERVATION, reservations.get().get(0));
@@ -51,47 +52,49 @@ public class ReservationServiceImplTest extends ReservationBaseTest {
 
 	@Test
 	public void getReservationsForUser_noReservations() {
-		when(reservationDaoMock.findReservationsByUserReservedEmail(DUMMY_USER_EMAIL)).thenReturn(null);
+		when(reservationDaoMock.findReservationsByUserReserved_Email(DUMMY_USER.getEmail())).thenReturn(null);
 
-		Optional<List<Reservation>> reservations = testObj.getReservationsForUser(DUMMY_USER_EMAIL);
+		Optional<List<Reservation>> reservations = testObj.getReservationsForUser(DUMMY_USER.getEmail());
 
 		assertFalse("There should be a reservation returned", reservations.isPresent());
 	}
 
 	@Test
 	public void getFreeTablesForVenue_noFreeTables() {
-		when(reservationDaoMock.getReservationsByVenueIdAndReservationDate(DUMMY_VENUE_ID,
-				DUMMY_RESERVATION_DATE)).thenReturn(Arrays.asList(DUMMY_RESERVATION));
-		
-		when(venueService.getTablesForVenue(DUMMY_VENUE_ID)).thenReturn(Arrays.asList(venueTable));
-		
-		Optional<List<Table>> freeTables = testObj.getFreeTablesForVenue(DUMMY_VENUE_ID, DUMMY_RESERVATION_DATE, DUMMY_RESERVATION_PEOPLE_ATTENDING);
-		
-		verify(reservationDaoMock).getReservationsByVenueIdAndReservationDate(DUMMY_VENUE_ID, DUMMY_RESERVATION_DATE);
+		when(reservationDaoMock.getReservationsByReservationDateAndVenue_Id(DUMMY_RESERVATION_DATE, DUMMY_VENUE_ID))
+				.thenReturn(Arrays.asList(DUMMY_RESERVATION));
+
+		when(venueService.getTablesForVenue(DUMMY_VENUE_ID)).thenReturn(Arrays.asList(venueTable_capacity2));
+
+		Optional<List<Table>> freeTables = testObj.getFreeTablesForVenue(DUMMY_VENUE_ID, DUMMY_RESERVATION_DATE,
+				DUMMY_RESERVATION_PEOPLE_ATTENDING);
+
+		verify(reservationDaoMock).getReservationsByReservationDateAndVenue_Id(DUMMY_RESERVATION_DATE, DUMMY_VENUE_ID);
 		verify(venueService).getTablesForVenue(DUMMY_VENUE_ID);
 		assertEquals("There should be 0 free tables", 0, freeTables.get().size());
 	}
 
 	@Test
 	public void getFreeTablesForVenue_freeTablesExist() {
-		when(reservationDaoMock.getReservationsByVenueIdAndReservationDate(DUMMY_VENUE_ID,
-				DUMMY_RESERVATION_DATE)).thenReturn(Arrays.asList());
-		
-		when(venueService.getTablesForVenue(DUMMY_VENUE_ID)).thenReturn(Arrays.asList(venueTable));
-		
+		when(reservationDaoMock.getReservationsByReservationDateAndVenue_Id(DUMMY_RESERVATION_DATE, DUMMY_VENUE_ID))
+				.thenReturn(Arrays.asList());
+
+		when(venueService.getTablesForVenue(DUMMY_VENUE_ID)).thenReturn(Arrays.asList(venueTable_capacity2));
+
 		int peopleAttendingMatchingTableSize = 2;
-		Optional<List<Table>> freeTables = testObj.getFreeTablesForVenue(DUMMY_VENUE_ID, DUMMY_RESERVATION_DATE, peopleAttendingMatchingTableSize);
-		
-		verify(reservationDaoMock).getReservationsByVenueIdAndReservationDate(DUMMY_VENUE_ID, DUMMY_RESERVATION_DATE);
+		Optional<List<Table>> freeTables = testObj.getFreeTablesForVenue(DUMMY_VENUE_ID, DUMMY_RESERVATION_DATE,
+				peopleAttendingMatchingTableSize);
+
+		verify(reservationDaoMock).getReservationsByReservationDateAndVenue_Id(DUMMY_RESERVATION_DATE, DUMMY_VENUE_ID);
 		verify(venueService).getTablesForVenue(DUMMY_VENUE_ID);
 		assertTrue("There should be no freeTables", freeTables.isPresent());
 		assertEquals("There should be 1 free table", 1, freeTables.get().size());
 	}
 
 	@Test
-	public void getAllReservationsForVenue() {		
-		when(reservationDaoMock.getReservationsByVenueIdAndReservationDate(DUMMY_VENUE_ID,
-				DUMMY_RESERVATION_DATE)).thenReturn(Arrays.asList(DUMMY_RESERVATION));
+	public void getAllReservationsForVenue() {
+		when(reservationDaoMock.getReservationsByReservationDateAndVenue_Id(DUMMY_RESERVATION_DATE, DUMMY_VENUE_ID))
+				.thenReturn(Arrays.asList(DUMMY_RESERVATION));
 
 		Optional<List<Reservation>> reservations = testObj.getAllReservationsForVenue(DUMMY_VENUE_ID,
 				DUMMY_RESERVATION_DATE);
@@ -103,9 +106,8 @@ public class ReservationServiceImplTest extends ReservationBaseTest {
 	@Test
 	public void addReservation() {
 		when(reservationDaoMock.save(DUMMY_RESERVATION)).thenReturn(DUMMY_RESERVATION);
-		Optional<Reservation> savedReservation = testObj.saveReservation(DUMMY_RESERVATION);
+		Reservation savedReservation = testObj.saveReservation(DUMMY_RESERVATION);
 
-		assertTrue("There reservation should be saved", savedReservation.isPresent());
-		assertEquals("Reservation should be the one mocked", DUMMY_RESERVATION, savedReservation.get());
+		assertEquals("Reservation should be the one mocked", DUMMY_RESERVATION, savedReservation);
 	}
 }

@@ -15,6 +15,6 @@ public interface ReservationService {
 
 	Optional<List<Reservation>> getAllReservationsForVenue(String venueId, LocalDate reservationDate);
 
-	Optional<Reservation> saveReservation(Reservation reservationToAdd);
+	Reservation saveReservation(Reservation reservationToAdd);
 
 }

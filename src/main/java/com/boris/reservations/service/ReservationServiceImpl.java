@@ -16,22 +16,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.boris.reservations.dao.ReservationDao;
+import com.boris.reservations.dao.TableDao;
+import com.boris.reservations.dao.UserDao;
 import com.boris.reservations.model.Reservation;
 import com.boris.reservations.model.Table;
+import com.boris.reservations.model.User;
 
 @Service
+@Transactional
 public class ReservationServiceImpl implements ReservationService {
-	
+
 	private static final Logger LOGGER = Logger.getLogger(ReservationServiceImpl.class);
 	@Autowired
-	ReservationDao reservationsDao;
+	private ReservationDao reservationsDao;
 
 	@Autowired
-	VenueService venueService;
-	
-	private static ExecutorService executorService = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
+	private TableDao tableDao;
+
+	@Autowired
+	private UserDao userDao;
+
+	@Autowired
+	private VenueService venueService;
+
+	private static ExecutorService executorService = Executors
+			.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors() - 1, 1));
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -41,7 +54,7 @@ public class ReservationServiceImpl implements ReservationService {
 	 */
 	@Override
 	public Optional<List<Reservation>> getReservationsForUser(String userEmail) {
-		return Optional.ofNullable(reservationsDao.findReservationsByUserReservedEmail(userEmail));
+		return Optional.ofNullable(reservationsDao.findReservationsByUserReserved_Email(userEmail));
 	}
 
 	/*
@@ -54,35 +67,37 @@ public class ReservationServiceImpl implements ReservationService {
 	@Override
 	public Optional<List<Table>> getFreeTablesForVenue(String venueId, LocalDate reservationDate,
 			final int peopleAttending) {
-		Callable<List<Table>> tablesForVenueTask = () -> venueService.getTablesForVenue(venueId);
-		
+		Callable<List<Table>> tablesForVenueTask = () -> tableDao
+				.getTableByTablePrimaryKey_venueBelongingTo_Id(venueId);
+
 		Future<List<Table>> tablesForVenueFuture = executorService.submit(tablesForVenueTask);
 		List<Table> freeTablesForVenue = null;
-		
-		List<Integer> reservedTableNumbers = reservationsDao.getReservationsByVenueIdAndReservationDate(venueId,reservationDate).stream()
+
+		List<Integer> reservedTableNumbers = reservationsDao
+				.getReservationsByReservationDateAndVenue_Id(reservationDate, venueId).stream()
 				.map(reservation -> reservation.getTableReserved().getNumber()).collect(toList());
-			
+
 		try {
-			freeTablesForVenue = tablesForVenueFuture.get().stream().filter(table -> !reservedTableNumbers.contains(table.getNumber()))
+			freeTablesForVenue = tablesForVenueFuture.get().stream()
+					.filter(table -> !reservedTableNumbers.contains(table.getNumber()))
 					.filter(table -> table.getCapacity() >= peopleAttending).collect(toList());
 		} catch (InterruptedException | ExecutionException e) {
 			LOGGER.debug("Error while making async get tables request", e);
 			e.printStackTrace();
 		}
-		
-		
+
 		return Optional.ofNullable(freeTablesForVenue);
 	}
-	
+
 	@Async
 	private Future<List<Table>> getTablesForVenue(String venueId) {
 		return new AsyncResult<>(venueService.getTablesForVenue(venueId));
 	}
-	
+
 	@Async
 	private Future<List<Reservation>> getReservationsForVenue(String venueId, LocalDate reservationDate) {
-		List<Reservation> reservationsForVenue = reservationsDao.getReservationsByVenueIdAndReservationDate(venueId,
-				reservationDate);
+		List<Reservation> reservationsForVenue = reservationsDao
+				.getReservationsByReservationDateAndVenue_Id(reservationDate, venueId);
 		return new AsyncResult<>(reservationsForVenue);
 	}
 
@@ -95,7 +110,7 @@ public class ReservationServiceImpl implements ReservationService {
 	@Override
 	public Optional<List<Reservation>> getAllReservationsForVenue(String venueId, LocalDate reservationDate) {
 		return Optional
-				.ofNullable(reservationsDao.getReservationsByVenueIdAndReservationDate(venueId, reservationDate));
+				.ofNullable(reservationsDao.getReservationsByReservationDateAndVenue_Id(reservationDate, venueId));
 	}
 
 	/*
@@ -106,8 +121,15 @@ public class ReservationServiceImpl implements ReservationService {
 	 * boris.reservations.model.Reservation)
 	 */
 	@Override
-	public Optional<Reservation> saveReservation(Reservation reservationToSave) {
-		return Optional.of(reservationsDao.save(reservationToSave));
+	public Reservation saveReservation(Reservation reservationToSave) {
+		User userReserved = reservationToSave.getUserReserved();
+		User userDbEntry = userDao.findOne(userReserved.getEmail());
+		
+		if (userDbEntry == null) {
+			userDao.save(userReserved);
+		}
+		
+		return reservationsDao.save(reservationToSave);
 	}
 
 }

@@ -17,7 +17,6 @@ import com.boris.reservations.controllers.RestAuthenticationEntryPoint;
 import com.boris.reservations.security.JwtAuthenticationProvider;
 import com.boris.reservations.security.JwtTokenAuthenticationProcessingFilter;
 import com.boris.reservations.security.TokenExtractor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableWebSecurity
@@ -30,7 +29,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired private AuthenticationManager authenticationManager;
     @Autowired private JwtAuthenticationProvider jwtAuthenticationProvider;
     
-    @Autowired private ObjectMapper objectMapper;
     @Autowired private RestAuthenticationEntryPoint authenticationEntryPoint;
     @Autowired private AuthenticationFailureHandler failureHandler;
 
