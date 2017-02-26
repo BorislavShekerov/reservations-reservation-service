@@ -11,8 +11,13 @@ import com.boris.reservations.model.Reservation;
 @Repository
 public interface ReservationDao extends CrudRepository<Reservation, Long> {
 
-	List<Reservation> findReservationsByUserReserved_Email(String userEmail);
+	public List<Reservation> findReservationsByUserReserved_Email(String userEmail);
 
-	List<Reservation> getReservationsByReservationDateAndVenue_Id(LocalDate reservationDate, String id);
+	public List<Reservation> getReservationsByReservationDateAndVenue_Id(LocalDate reservationDate, String id);
+
+	public List<Reservation> getReservationsByVenue_IdAndReservationDateBetweenAndIsAnswered(String venueId, LocalDate monthStart,
+			LocalDate monthEnd, boolean isAnswered);
+
+	public List<Reservation> getReservationsByReservationDateAndIsAnsweredAndIsConfirmed(LocalDate dateToFetchReservationsFor, boolean b, boolean c);
 
 }

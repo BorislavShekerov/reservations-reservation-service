@@ -12,6 +12,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.boris.reservations.controllers.RestAuthenticationEntryPoint;
 import com.boris.reservations.security.JwtAuthenticationProvider;
@@ -23,6 +25,9 @@ import com.boris.reservations.security.TokenExtractor;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String JWT_TOKEN_HEADER_PARAM = "X-Authorization";
     public static final String RESERVATIONS_ENTRY_POINT = "/reservations/";
+    public static final String NEW_RESERVATIONS = "/reservations/new/**";
+    public static final String CONFIRMED_RESERVATIONS = "/reservations/confirmed/**";
+    
     
     @Autowired private TokenExtractor tokenExtractor;
     
@@ -34,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter() throws Exception {
-        AntPathRequestMatcher matcher = new AntPathRequestMatcher(RESERVATIONS_ENTRY_POINT);
+        RequestMatcher matcher = new OrRequestMatcher(new AntPathRequestMatcher(RESERVATIONS_ENTRY_POINT), new AntPathRequestMatcher(NEW_RESERVATIONS), new AntPathRequestMatcher(CONFIRMED_RESERVATIONS));
         JwtTokenAuthenticationProcessingFilter filter 
             = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher);
         filter.setAuthenticationManager(this.authenticationManager);
@@ -63,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
             .authorizeRequests()
-                .antMatchers(RESERVATIONS_ENTRY_POINT).authenticated() // Protected API End-points
+                .antMatchers(RESERVATIONS_ENTRY_POINT, NEW_RESERVATIONS, CONFIRMED_RESERVATIONS).authenticated() // Protected API End-points
         .and()
             .addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
     }

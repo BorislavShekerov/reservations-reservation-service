@@ -1,6 +1,7 @@
 package com.boris.reservations.security;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +36,13 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         List<String> scopes = claimsBody.get("scopes", List.class);
         String firstName = claimsBody.get("firstName", String.class);
         String lastName = claimsBody.get("lastName", String.class);
-        
+        Map<String, Object> extendedAttributes= claimsBody.get("extendedAttributes", Map.class);
+         
         List<GrantedAuthority> authorities = scopes.stream()
                 .map(authority -> new SimpleGrantedAuthority(authority))
                 .collect(Collectors.toList());
         
-        UserContext context = UserContext.create(subject, firstName, lastName, authorities);
+        UserContext context = UserContext.create(subject, firstName, lastName, extendedAttributes, authorities);
         
         return new JwtAuthenticationToken(context, context.getAuthorities());
     }

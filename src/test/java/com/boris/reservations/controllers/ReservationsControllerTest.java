@@ -5,6 +5,9 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.boris.reservations.ReservationBaseTest;
+import com.boris.reservations.model.DailyReservationsWrapper;
 import com.boris.reservations.model.Reservation;
 import com.boris.reservations.model.Table;
 import com.boris.reservations.security.UserContext;
@@ -96,6 +100,21 @@ public class ReservationsControllerTest extends ReservationBaseTest {
 		verify(reservationService).saveReservation(DUMMY_RESERVATION);
 
 		assertEquals("Reservation should be unsuccessful", null, result);
+	}
+	
+	@Test
+	public void getAllNewWeeklyReservationsForVenue(){
+		DailyReservationsWrapper newReservation = new DailyReservationsWrapper(LocalDate.now(), Arrays.asList(new Reservation.ReservationBuilder().withId(DUMMY_RESERVATION_ID).build()), null);
+		List<DailyReservationsWrapper> newReservations = Arrays.asList(newReservation) ;
+		
+		when(reservationService.getAllNewMonthlyReservationsForVenue(DUMMY_VENUE_ID, DUMMY_RESERVATION_DATE)).thenReturn(newReservations);
+		
+		List<DailyReservationsWrapper> result = this.testObj.getAllNewMonthlyReservationsForVenue(DUMMY_VENUE_ID, DUMMY_RESERVATION_DATE.toString());
+		
+		verify(reservationService).getAllNewMonthlyReservationsForVenue(DUMMY_VENUE_ID, DUMMY_RESERVATION_DATE);
+		
+		assertEquals("There should be a single new reservation",1 , result.size());
+		assertEquals("Checking if the newReservations are as expected",newReservations, result);
 	}
 
 }

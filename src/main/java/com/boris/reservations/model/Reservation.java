@@ -44,7 +44,10 @@ public class Reservation {
 	
 	/** The is active. */
 	@Basic
-	private boolean isActive;
+	private boolean isAnswered;
+	
+	@Basic
+	private boolean isConfirmed;
 
 	/**
 	 * Gets the user reserved.
@@ -153,16 +156,23 @@ public class Reservation {
 	public void setTableReserved(Table tableReserved) {
 		this.tableReserved = tableReserved;
 	}
-	
-	/**
-	 * Checks if is active.
-	 *
-	 * @return true, if is active
-	 */
-	public boolean isActive() {
-		return isActive;
+
+	public boolean isAnswered() {
+		return isAnswered;
 	}
 
+	public boolean isConfirmed() {
+		return isConfirmed;
+	}
+
+	public void setAnswered(boolean isAnswered) {
+		this.isAnswered = isAnswered;
+	}
+
+	public void setConfirmed(boolean isConfirmed) {
+		this.isConfirmed = isConfirmed;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -293,11 +303,20 @@ public class Reservation {
 		 * @param tableReserved the table reserved
 		 * @return the reservation builder
 		 */
+		public ReservationBuilder withAnswered(boolean isAnswered) {
+			this.reservation.setAnswered(true);
+			return this;
+		}
+		
+		public ReservationBuilder withConfirmed(boolean isConfirmed) {
+			this.reservation.setConfirmed(true);
+			return this;
+		}
+		
 		public ReservationBuilder withTableReserved(Table tableReserved) {
 			this.reservation.setTableReserved(tableReserved);
 			return this;
 		}
-
 		/**
 		 * Builds the.
 		 *
@@ -306,5 +325,10 @@ public class Reservation {
 		public Reservation build() {
 			return this.reservation;
 		}
+	}
+
+	public void confirmReservation() {
+		this.isConfirmed = true;
+		this.isAnswered = true;
 	}
 }

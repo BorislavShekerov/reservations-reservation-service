@@ -4,12 +4,14 @@ import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.boris.reservations.dao.ReservationDao;
 import com.boris.reservations.dao.TableDao;
 import com.boris.reservations.dao.UserDao;
+import com.boris.reservations.model.DailyReservationsWrapper;
 import com.boris.reservations.model.Reservation;
 import com.boris.reservations.model.Table;
 import com.boris.reservations.model.User;
@@ -124,12 +127,40 @@ public class ReservationServiceImpl implements ReservationService {
 	public Reservation saveReservation(Reservation reservationToSave) {
 		User userReserved = reservationToSave.getUserReserved();
 		User userDbEntry = userDao.findOne(userReserved.getEmail());
-		
+
 		if (userDbEntry == null) {
 			userDao.save(userReserved);
 		}
-		
+
 		return reservationsDao.save(reservationToSave);
+	}
+
+	@Override
+	public List<DailyReservationsWrapper> getAllNewMonthlyReservationsForVenue(String venueId, LocalDate dateToCheck) {
+		LocalDate monthStart = dateToCheck.withDayOfMonth(1);
+		LocalDate monthEnd = dateToCheck.withDayOfMonth(dateToCheck.lengthOfMonth());
+
+		List<Reservation> newReservations = reservationsDao
+				.getReservationsByVenue_IdAndReservationDateBetweenAndIsAnswered(venueId, monthStart, monthEnd, false);
+
+		Map<LocalDate, List<Reservation>> reservationsByDate = newReservations.stream().collect(Collectors.groupingBy(Reservation::getReservationDate));
+		
+		return reservationsByDate.entrySet().stream()
+				.map(entry -> new DailyReservationsWrapper(entry.getKey(), entry.getValue(), null)).collect(toList());
+	}
+
+	@Override
+	public void confirmReservations(List<Long> reservationsToConfirm) {
+		Iterable<Reservation> allReservationsToConfirm = reservationsDao.findAll(reservationsToConfirm);
+		
+		allReservationsToConfirm.forEach(reservation -> reservation.confirmReservation());
+		
+		this.reservationsDao.save(allReservationsToConfirm);
+	}
+
+	@Override
+	public List<Reservation> getAllConfirmedDailyReservations(LocalDate dateToFetchReservationsFor) {
+		return this.reservationsDao.getReservationsByReservationDateAndIsAnsweredAndIsConfirmed(dateToFetchReservationsFor, true, true);
 	}
 
 }

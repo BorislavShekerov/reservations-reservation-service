@@ -22,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.boris.reservations.dao.ReservationDao;
+import com.boris.reservations.dao.TableDao;
+import com.boris.reservations.dao.UserDao;
+import com.boris.reservations.dao.VenueDao;
 import com.boris.reservations.model.Reservation;
 import com.boris.reservations.model.Reservation.ReservationBuilder;
 import com.boris.reservations.model.Table;
@@ -41,6 +44,14 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 	@Autowired
 	ReservationDao reservationsDao;
 	
+	@Autowired
+	VenueDao venueDao;
+	
+	@Autowired
+	TableDao tableDao;
+	
+	@Autowired
+	UserDao userDao;
 	
 	@Before
 	public void setup() {
@@ -109,8 +120,8 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 	@Test
 	@Rollback(true)
 	public void addReservation() throws Exception {
-		ReservationRequest request = new ReservationRequest(DUMMY_RESERVATION_ID, DUMMY_RESERVATION_DATE.toString(), DUMMY_RESERVED_VENUE,
-				DUMMY_RESERVATION_PEOPLE_ATTENDING, venueTable_capacity2, DUMMY_USER);
+		ReservationRequest request = new ReservationRequest(DUMMY_RESERVATION_ID, DUMMY_RESERVATION_DATE.toString(),
+				DUMMY_RESERVED_VENUE, DUMMY_RESERVATION_PEOPLE_ATTENDING, venueTable_capacity2, DUMMY_USER);
 
 		this.mockMvc
 				.perform(post("/reservations/").contentType(MediaType.APPLICATION_JSON).content(asJsonString(request))
@@ -127,26 +138,44 @@ public class ReservationsIntegrationTest extends ReservationsIntegrationBaseTest
 				.build();
 
 		reservationsDao.save(userTestReservation);
-		
+
 		this.mockMvc
 				.perform(get("/reservations/" + DUMMY_VENUE_ID + "/" + DUMMY_RESERVATION_DATE.toString() + "/"
 						+ DUMMY_RESERVATION_PEOPLE_ATTENDING)
 								.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-				.andDo(print()).andExpect(status().isOk())
-				.andExpect(content().string("[]"));
+				.andDo(print()).andExpect(status().isOk()).andExpect(content().string("[]"));
 
 	}
+
 	@Test
 	@Rollback(true)
 	public void getFreeTablesForVenue_freeTablesAvailable() throws Exception {
 		this.mockMvc
-		.perform(get("/reservations/" + DUMMY_VENUE_ID + "/" + DUMMY_RESERVATION_DATE.toString() + "/"
-				+ VenueServiceStub.AVAILABLE_TABLE.getCapacity())
-				.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-		.andDo(print()).andExpect(status().isOk())
-		.andExpect(jsonPath("$[0]").exists())
-		.andExpect(jsonPath("$[0].number").value(VenueServiceStub.AVAILABLE_TABLE.getNumber()));
+				.perform(get("/reservations/" + DUMMY_VENUE_ID + "/" + DUMMY_RESERVATION_DATE.toString() + "/"
+						+ VenueServiceStub.AVAILABLE_TABLE.getCapacity())
+								.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$[0]").exists())
+				.andExpect(jsonPath("$[0].number").value(VenueServiceStub.AVAILABLE_TABLE.getNumber()));
+
+	}
+
+	@Test
+	public void getAllNewMonthlyReservationsForVenue() throws Exception {
+		Reservation userTestReservation = new ReservationBuilder().withId(DUMMY_RESERVATION_ID)
+				.withPeopleAttending(DUMMY_RESERVATION_PEOPLE_ATTENDING).withReservationDate(LocalDate.now())
+				.withVenue(DUMMY_RESERVED_VENUE).withUserReserved(DUMMY_USER).withTableReserved(venueTable_capacity2)
+				.withAnswered(false).withConfirmed(false).build();
 		
+		venueDao.save(DUMMY_RESERVED_VENUE);
+		tableDao.save(venueTable_capacity2);
+		userDao.save(DUMMY_USER);
+		reservationsDao.save(userTestReservation);
+
+		this.mockMvc
+				.perform(get("/reservations/new/" + DUMMY_VENUE_ID + "/" + DUMMY_RESERVATION_DATE.toString())
+						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+				.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$[0]").exists());
+		// .andExpect(jsonPath("$[0].").value(VenueServiceStub.AVAILABLE_TABLE.getNumber()));
 	}
 
 	private static String asJsonString(final Object obj) {
